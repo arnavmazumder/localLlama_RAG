@@ -7,11 +7,17 @@ class DashboardScreen extends StatelessWidget {
     String? directoryPath = await FilePicker.platform.getDirectoryPath();
     if (directoryPath != null) {
       // Process the directory to create a vector store
+      await _makeVectorstore(directoryPath);
+
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => ChatScreen(directoryPath)),
       );
     }
+  }
+
+  Future<void> _makeVectorstore(String path) async {
+    
   }
 
   @override

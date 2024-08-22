@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-// import 'package:http/http.dart' as http;
-// import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class ChatScreen extends StatefulWidget {
   final String directoryPath;
@@ -15,7 +15,7 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
   final List<String> _messages = [];
   final List<int> _messageClasses = [];
   final ScrollController _scrollController = ScrollController();
-  bool isGenerating = false;
+  bool isLoading = false;
   late AnimationController _animationController;
 
   @override
@@ -28,21 +28,57 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
   }
 
   void _getResponse() async {
-    setState(() {
-      isGenerating = true;
-    });
+  setState(() {
+    isLoading = true;
+  });
 
-    String result = 'Hi there!';
-    await Future.delayed(Duration(seconds: 3));
-    
-    setState(() {
-      _messages.add(result);
-      _messageClasses.add(2);
-      isGenerating = false;
-    });
-
-    _scrollToBottom();
+  List<String> payload = [];
+  for (int i = _messages.length - 1; i >= 0; i -= 1) {
+    payload.add(_messages[i]);
+    if (payload.length == 11) {
+      break;
+    }
   }
+
+  try {
+    final request = http.Request("POST", Uri.parse('http://localhost:3000/api/llm'))
+      ..headers['Content-Type'] = 'application/json; charset=UTF-8'
+      ..body = jsonEncode(<String, List<String>>{
+        'msgs': payload,
+      });
+
+    final response = await http.Client().send(request);
+
+    _messages.add('');
+    _messageClasses.add(2);
+    setState(() {
+      isLoading = false;  // Stop showing the typing indicator
+    });
+    response.stream.transform(utf8.decoder).listen(
+      (chunk) {
+        setState(() {
+          _messages[_messages.length-1] += chunk;  // Add each chunk of data to the messages
+        });
+        _scrollToBottom();
+      },
+      onError: (error) {
+        setState(() {
+          isLoading = false;
+        });
+        // Handle the error appropriately in your UI
+        throw Exception('Error occurred: $error');
+      },
+      cancelOnError: true,
+    );
+  } catch (e) {
+    setState(() {
+      isLoading = false;
+    });
+    // Handle the error appropriately in your UI
+    throw Exception('Error occurred: $e');
+  }
+}
+
 
   void _sendMessage() {
     if (_controller.text.isNotEmpty) {
@@ -50,7 +86,7 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
         _messages.add(_controller.text);
         _messageClasses.add(1);
         _controller.clear();
-        isGenerating = true;
+        isLoading = true;
       });
       _scrollToBottom();
       _getResponse();
@@ -92,9 +128,9 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
               child: ListView.builder(
                 controller: _scrollController,
                 padding: EdgeInsets.all(8.0),
-                itemCount: _messages.length + (isGenerating ? 1 : 0),
+                itemCount: _messages.length + (isLoading ? 1 : 0),
                 itemBuilder: (context, index) {
-                  if (index == _messages.length && isGenerating) {
+                  if (index == _messages.length && isLoading) {
                     // Show the animated typing indicator
                     return Align(
                       alignment: Alignment.centerLeft,
@@ -162,7 +198,7 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
               children: [
                 Expanded(
                   child: TextField(
-                    enabled: !isGenerating,
+                    enabled: !isLoading,
                     controller: _controller,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(),
