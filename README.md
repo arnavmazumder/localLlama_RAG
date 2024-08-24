@@ -1,3 +1,3 @@
-# Personal Knowledge Assistant
+# LocalLlama RAG
 
 
