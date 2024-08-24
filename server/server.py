@@ -6,6 +6,7 @@ import faiss
 import copy
 import numpy as np
 import tqdm
+import shutil
 
 app = Flask(__name__)
 
@@ -66,14 +67,13 @@ def llm():
 
         query_embedding = ollama.embeddings(model=EMBEDDER, prompt=req['msgs'][0])['embedding']
         _, indices = index.search(np.array([query_embedding]).astype('float32'), K)
-        
-        docs = ''
-        for i, doc in enumerate(indices):
-            for j in doc:
-                docs += f'{text_chunks[i][j]}\n'
 
+        docs = ''
+        for i in indices[0]:
+            docs += f'{text_chunks[i]}\n'
+        print(docs)
         prompt += docs
-        
+
     else:
         prompt = '''
     You are a bot who is conversing with a User. You will be provided with the most recent messages that you have 
@@ -115,6 +115,9 @@ def updateVstore():
     print('Pulling:', file.filename)
 
     # Extract Text
+    if not os.path.isdir(UPLOAD_FOLDER):
+        os.mkdir(UPLOAD_FOLDER)
+    
     filePath = os.path.join(UPLOAD_FOLDER, file.filename)
     if file:
         file.save(filePath)
@@ -144,7 +147,7 @@ def updateVstore():
             break
 
     print('Updating Vectorstore...')
-    text_chunks.append(copy.copy(chunks))
+    text_chunks.extend(copy.copy(chunks))
 
     print('# of chunks:', len(chunks))
     embeddings = []
@@ -169,10 +172,8 @@ def clearVstore():
     index = faiss.IndexFlatL2(EMBED_DIMENSION)
 
     # Clear uploads folder
-    files = os.listdir(UPLOAD_FOLDER)
-    for file in files:
-        file_path = os.path.join(UPLOAD_FOLDER, file)
-        os.remove(file_path)
+    if os.path.isdir(UPLOAD_FOLDER):
+        shutil.rmtree(UPLOAD_FOLDER)
 
     return {'msg': 'success'}, 200
 

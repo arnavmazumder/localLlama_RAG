@@ -15,7 +15,8 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
   final List<String> _messages = [];
   final List<int> _messageClasses = [];
   final ScrollController _scrollController = ScrollController();
-  bool isLoading = false;
+  bool isTyping = false;
+  bool isGenerating = false;
   late AnimationController _animationController;
 
   @override
@@ -29,7 +30,7 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
 
   void _getResponse() async {
   setState(() {
-    isLoading = true;
+    isTyping = true;
   });
 
   List<String> payload = [];
@@ -52,7 +53,8 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
     _messages.add('');
     _messageClasses.add(2);
     setState(() {
-      isLoading = false;  // Stop showing the typing indicator
+      isTyping = false;  // Stop showing the typing indicator
+      isGenerating=true;
     });
     response.stream.transform(utf8.decoder).listen(
       (chunk) {
@@ -62,17 +64,22 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
         _scrollToBottom();
       },
       onError: (error) {
-        setState(() {
-          isLoading = false;
-        });
         // Handle the error appropriately in your UI
         throw Exception('Error occurred: $error');
       },
+      onDone: () {
+        setState(() {
+          isGenerating = false;  // Stop the loading indicator when the stream is done
+        });
+      },
       cancelOnError: true,
     );
+    
+
   } catch (e) {
     setState(() {
-      isLoading = false;
+      isTyping = false;
+      isGenerating=false;
     });
     // Handle the error appropriately in your UI
     throw Exception('Error occurred: $e');
@@ -86,7 +93,7 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
         _messages.add(_controller.text);
         _messageClasses.add(1);
         _controller.clear();
-        isLoading = true;
+        isTyping = true;
       });
       _scrollToBottom();
       _getResponse();
@@ -128,9 +135,9 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
               child: ListView.builder(
                 controller: _scrollController,
                 padding: EdgeInsets.all(8.0),
-                itemCount: _messages.length + (isLoading ? 1 : 0),
+                itemCount: _messages.length + (isTyping ? 1 : 0),
                 itemBuilder: (context, index) {
-                  if (index == _messages.length && isLoading) {
+                  if (index == _messages.length && isTyping) {
                     // Show the animated typing indicator
                     return Align(
                       alignment: Alignment.centerLeft,
@@ -198,7 +205,7 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
               children: [
                 Expanded(
                   child: TextField(
-                    enabled: !isLoading,
+                    enabled: !isGenerating && !isTyping,
                     controller: _controller,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(),

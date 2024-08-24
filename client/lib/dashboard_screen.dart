@@ -14,7 +14,7 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   bool isLoading = false;
-
+  bool errors = false;
   void _pickDirectory(BuildContext context) async {
     String? directoryPath = await FilePicker.platform.getDirectoryPath();
     if (directoryPath != null) {
@@ -28,10 +28,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
         isLoading=false;
       });
 
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => ChatScreen(directoryPath)),
-      );
+      if (!errors) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => ChatScreen(directoryPath)),
+        );
+      }
     }
   }
 
@@ -40,17 +42,29 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final Map<String, String> data = {
       'msg':'Invoke clear.'
     };
-
-    final response = await http.post(
-      url,
-      headers: {
-        'Content-Type': 'application/json',  
-      },
-      body: jsonEncode(data),
+    try
+    {  final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',  
+        },
+        body: jsonEncode(data),
     );
 
-    if (response.statusCode != 200) {
-      print('Request failed with status: ${response.statusCode}');
+      if (response.statusCode != 200) {
+        print('Request failed with status: ${response.statusCode}');
+        setState(() {
+          errors=true;
+        });
+      } else {
+         setState(() {
+          errors=false;
+      });
+      }
+    } catch (error) {
+      setState(() {
+          errors=true;
+      });
     }
   }
 
@@ -58,6 +72,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Future<void> _updateVectorstore(String path) async {
     var files = Directory(path).listSync();
 
+    try {
     for (var f in files) {
       if (!(f is Directory)) {
         String fileName = f.path.split('/').last;
@@ -78,10 +93,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
           var response = await request.send();
 
           if (response.statusCode != 200) {
+            setState(() {
+              errors=true;
+            });
             print('Failed to upload: $fileName');
-          }
+          } else {
+          setState(() {
+          errors=false;
+      });
+      }
         }
       }
+    }
+    } catch (error) {
+      setState(() {
+          errors=true;
+      });
     }
 
 
@@ -94,29 +121,33 @@ class _DashboardScreenState extends State<DashboardScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
+            const Text(
               'LocalLlama RAG',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 20),
-            SizedBox(height: 40),
+            const SizedBox(height: 20),
+            const SizedBox(height: 40),
 
             ElevatedButton(
               onPressed: isLoading ? null : () => _pickDirectory(context),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              ),
               child: isLoading
-                  ? SizedBox(
+                  ? const SizedBox(
                       width: 24,
                       height: 24,
                       child: CircularProgressIndicator(
-                        color: const Color.fromARGB(255, 0, 191, 255),
+                        color: Color.fromARGB(255, 78, 35, 131),
                         strokeWidth: 2.0,
                       ),
                     )
-                  : Text('Select Vectorstore Directory'),
-              style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              ),
+                  : const Text('Select Vectorstore Directory'),
             ),
+            const SizedBox(height: 20),
+            ((isLoading || errors)) ? Text(errors ? 'Server Error: Try again in a few moments' : 'Creating Vectorstore',
+              style: const TextStyle(fontSize: 16, color: Color.fromARGB(255, 78, 35, 131)),
+            ) : const Text(''),
           ],
         ),
       ),
