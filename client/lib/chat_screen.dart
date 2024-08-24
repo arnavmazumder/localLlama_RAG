@@ -35,7 +35,7 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
   List<String> payload = [];
   for (int i = _messages.length - 1; i >= 0; i -= 1) {
     payload.add(_messages[i]);
-    if (payload.length == 11) {
+    if (payload.length == 5) {
       break;
     }
   }
@@ -109,7 +109,7 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Friday', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: Text('LocalLlama RAG', style: TextStyle(fontWeight: FontWeight.bold)),
       ),
       body: Column(
         children: [
@@ -183,7 +183,7 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
                         color: color,
                         borderRadius: BorderRadius.circular(15),
                       ),
-                      child: Text(
+                      child: SelectableText(
                         _messages[index],
                         style: TextStyle(color: Colors.white),
                       ),
