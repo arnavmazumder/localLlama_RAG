@@ -34,6 +34,7 @@ pip install -r dependencies.txt
 ```
 
 **You will also need to install FAISS:**
+
 For CPU:
 ```bash
 pip install faiss-cpu
