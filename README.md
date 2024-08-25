@@ -2,7 +2,7 @@
 
 This iOS/macOS application is a locally powered Llama 3.1 (8b) chatbot with retrieval augmented generation (RAG) capabilities, using a local FAISS vectorstore. 
 
-![hippo](https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExeDFpc3Y2cW01dzhnN3FvbDhwbGliODNtZjBubWR1aGo5bzlqZndyZiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/AQje9PEvcyd3OAed82/giphy.gif)
+![hippo](https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExMzV4MzVyN3NnNmNsbDF1Yjd4cHF1YjA2NXNjMmlldWNlaTd2a2hnaCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/aTwCgbZ2LtXRelQYaB/giphy.gif)
 
 
 ## Technologies Used
