@@ -69,13 +69,13 @@ In a new terminal window, run the following commands:
 2. **Run Flask Server**
 
 In a new terminal window, run the following commands:
-    ```bash
-    cd localLlama_RAG/server
-    python3 server.py
-    ```
+   ```bash
+   cd localLlama_RAG/server
+   python3 server.py
+   ```
 
-    From this window, you will be able to view incoming requests and processing details for retrieved documents.
-    <br>
+   From this window, you will be able to view incoming requests and processing details for retrieved documents.
+   <br>
  
 
 ### Usage
