@@ -55,6 +55,7 @@ flutter doctor
 ### Running Locally
 
 1. **Start Flutter in the client directory**
+
 In a new terminal window, run the following commands:
    ```bash
    cd localLlama_RAG/client
@@ -66,6 +67,7 @@ In a new terminal window, run the following commands:
    <br>
 
 2. **Run Flask Server**
+
 In a new terminal window, run the following commands:
     ```bash
     cd localLlama_RAG/server
