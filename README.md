@@ -19,6 +19,17 @@ This repository contains all of the code necessary for running the application l
 - VS Code
 - Python: &nbsp;&nbsp;<a href=https://www.python.org/downloads>View instructions here.</a>
 - Flutter: &nbsp;&nbsp;<a href=https://docs.flutter.dev/get-started/install/macos>View instructions here.</a>
+- Ollama: &nbsp;&nbsp;<a href=https://ollama.com>View instructions here.</a>
+
+**Install Llama 3.1:**
+Once you have downloaded Ollama, open the Ollama application and then verify that the Ollama local server is running on ```http://localhost:11434```
+
+Next, install Llama 3.1 and verify the installation by running the following commands in a new terminal window:
+   ```bash
+   ollama pull llama3.1:8b
+   ollama list
+   ```
+
 
 
 **Clone the repository and enter the main directory:**
@@ -62,7 +73,7 @@ In a new terminal window, run the following commands:
    flutter run
    ```
 
-   Follow the instructions to start the application on macOS or iOS (for iOS, you must begin the iOS simulator).
+   Follow the instructions to start the application on macOS or iOS (for iOS, you must run the iOS simulator).
 
    <br>
 
